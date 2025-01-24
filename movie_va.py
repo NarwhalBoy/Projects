@@ -1,7 +1,7 @@
 import imdb
 import pyttsx3
 import speech_recognition as sr
-import datetime
+
 
 def speak(text):
     engine = pyttsx3.init()
@@ -21,8 +21,9 @@ def speak(text):
 def get_audio():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        r.pause_threshhold = 1
-        r.adjust_for_ambient_noise(source, duration=1)
+        r.pause_threshold = 1
+        r.adjust_for_ambient_noise(source, duration=0.5)
+        speak("Listening")
         audio = r.listen(source)
         said = ""
     
@@ -36,13 +37,51 @@ def get_audio():
     return said.lower()
 
 
-speak("Say the First Movie Name")
-first = get_audio()
-speak("Say the Second Movie Name")
-second = get_audio()
 
-print("First movie is", first, "and second movie is", second)
 
-# def get_movies():
+
+def get_movie(text):
+    moviesdb = imdb.IMDb()
+    movies = moviesdb.search_movie(text)
+
+    speak("Searching for " + text)
+
+    if (movies):
+        
+        
+        #for movie in movies:
+        movie = moviesdb.get_movie(movies[0].movieID)
+        
+        speak("Found this ")
+        speak(f"{movie['title']}, {movie['year']}, Starring: {movie['cast'][0]}, and {movie['cast'][1]}")
+
+    else:
+        speak("No result found")
+
+
+def actor_intersection(name1, name2):
+    moviesdb = imdb.IMDb()
+    actor1 = moviesdb.get_person(moviesdb.search_person(name1)[0].personID)
+    actor2 = moviesdb.get_person(moviesdb.search_person(name2)[0].personID)
+
+    print(actor1['name'])
+    print(actor1['data']['filmography'])
+    
+    # for movie in actor1['filmography']['actor']:
+    #     print(movie['title'])
+
+
+
+
+
+
+
+
+
+
+speak("Pick a movie")
+get_movie(get_audio())
+#get_movie('La La Land')
+#actor_intersection("Ryan Gosling", "Emma Stone")
 
     
